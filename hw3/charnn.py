@@ -261,7 +261,14 @@ class MultilayerGRU(nn.Module):
         #      then call self.register_parameter() on them. Also make
         #      sure to initialize them. See functions in torch.nn.init.
         # ====== YOUR CODE: ======
-        raise NotImplementedError()
+        self.add_module('Linear', nn.Linear(in_dim, h_dim))
+        if dropout != 0:
+            self.add_module('Dropout', nn.Dropout(dropout))
+        for i in range(n_layers - 2):
+            self.add_module('Linear', nn.Linear(h_dim, h_dim))
+            if dropout != 0:
+                self.add_module('Dropout', nn.Dropout(dropout))
+        self.add_module('Linear', nn.Linear(h_dim, out_dim))
         # ========================
 
     def forward(self, input: Tensor, hidden_state: Tensor = None):
@@ -298,6 +305,11 @@ class MultilayerGRU(nn.Module):
         #  Tip: You can use torch.stack() to combine multiple tensors into a
         #  single tensor in a differentiable manner.
         # ====== YOUR CODE: ======
-        raise NotImplementedError()
+        """for i in range(self.n_layers):
+            layer_input = layer_input.mm(layer_states[i])
+            hidden_state = torch.stack(hidden_state, layer_input)
+        """
+        self.named_modules()
+        # layer_output = layer_input
         # ========================
         return layer_output, hidden_state
