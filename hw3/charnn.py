@@ -23,7 +23,10 @@ def char_maps(text: str):
     #  It's best if you also sort the chars before assigning indices, so that
     #  they're in lexical order.
     # ====== YOUR CODE: ======
-    raise NotImplementedError()
+    chars = list(set(text))
+    chars.sort()
+    char_to_idx = {c: i for i, c in enumerate(chars)}
+    idx_to_char = {v: k for k, v in char_to_idx.items()}
     # ========================
     return char_to_idx, idx_to_char
 
@@ -39,7 +42,15 @@ def remove_chars(text: str, chars_to_remove):
     """
     # TODO: Implement according to the docstring.
     # ====== YOUR CODE: ======
-    raise NotImplementedError()
+    """text_clean = text
+    n_removed = 0
+    for i, c in enumerate(text):
+        if c in chars_to_remove:
+            n_removed += 1
+        else:
+            text_clean[i-n_removed] = c"""
+    text_clean = (text.translate({ord(c): None for c in chars_to_remove}))
+    n_removed = len(text) - len(text_clean)
     # ========================
     return text_clean, n_removed
 
@@ -59,7 +70,9 @@ def chars_to_onehot(text: str, char_to_idx: dict) -> Tensor:
     """
     # TODO: Implement the embedding.
     # ====== YOUR CODE: ======
-    raise NotImplementedError()
+    result = torch.zeros([len(text), len(char_to_idx)], dtype=torch.int8)
+    for i, c in enumerate(text):
+        result[i][char_to_idx[c]] = 1
     # ========================
     return result
 
@@ -76,7 +89,10 @@ def onehot_to_chars(embedded_text: Tensor, idx_to_char: dict) -> str:
     """
     # TODO: Implement the reverse-embedding.
     # ====== YOUR CODE: ======
-    raise NotImplementedError()
+    result = ''
+    no_zero = torch.nonzero(embedded_text)[:, 1]
+    for idx in no_zero:
+        result += idx_to_char[int(idx)]
     # ========================
     return result
 
@@ -106,7 +122,10 @@ def chars_to_labelled_samples(text: str, char_to_idx: dict, seq_len: int,
     #  3. Create the labels tensor in a similar way and convert to indices.
     #  Note that no explicit loops are required to implement this function.
     # ====== YOUR CODE: ======
-    raise NotImplementedError()
+    embedded_tensor = chars_to_onehot(text, char_to_idx)
+    embedded_samples = embedded_tensor[:-1, :]
+    samples = embedded_samples.unfold(0, seq_len, seq_len).transpose(1, 2)
+    labels = ((torch.nonzero(embedded_tensor)[:, 1])[1:]).unfold(0, seq_len, seq_len)
     # ========================
     return samples, labels
 
@@ -170,6 +189,7 @@ class SequenceBatchSampler(torch.utils.data.Sampler):
     This sample ensures that samples in the same index of adjacent
     batches are also adjacent in the dataset.
     """
+
     def __init__(self, dataset: torch.utils.data.Dataset, batch_size):
         """
         :param dataset: The dataset for which to create indices.
@@ -190,7 +210,11 @@ class SequenceBatchSampler(torch.utils.data.Sampler):
         #  you can drop it.
         idx = None  # idx should be a 1-d list of indices.
         # ====== YOUR CODE: ======
-        raise NotImplementedError()
+        idx = []
+        num_batches = len(self.dataset) // self.batch_size
+        for i in range(num_batches):
+            for j in range(self.batch_size):
+                idx.append(i+j*num_batches)
         # ========================
         return iter(idx)
 
@@ -202,6 +226,7 @@ class MultilayerGRU(nn.Module):
     """
     Represents a multi-layer GRU (gated recurrent unit) model.
     """
+
     def __init__(self, in_dim, h_dim, out_dim, n_layers, dropout=0):
         """
         :param in_dim: Number of input dimensions (at each timestep).
