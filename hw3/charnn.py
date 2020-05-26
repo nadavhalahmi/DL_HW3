@@ -323,19 +323,22 @@ class MultilayerGRU(nn.Module):
         #  Tip: You can use torch.stack() to combine multiple tensors into a
         #  single tensor in a differentiable manner.
         # ====== YOUR CODE: ======
-        for i in range(self.n_layers):
-            ht_1 = layer_states[i]
-            zt_1 = self.layer_params[i]["xz"](layer_input)
-            zt_2 = self.layer_params[i]["hz"](ht_1)
-            print("zt1: " + str(zt_1.shape) + " zt2: " + str(zt_2.shape))
-            zt11 = zt_1 + zt_2
-            zt = torch.sigmoid(zt11)
-            rt = torch.sigmoid(self.layer_params[i]["xr"](layer_input) + self.layer_params[i]["hr"](ht_1))
-            gt = torch.tanh(self.layer_params[i]["xg"](layer_input) + self.layer_params[i]["hg"](rt*ht_1))
-            ht = zt*ht_1+(-zt+1)*gt
-            layer_states[i] = ht
-            layer_input = self.layer_params[i]["dropout"](ht)
-            hidden_state = torch.stack([hidden_state, ht])
-        layer_output = self.layer_params[-1]["hy"](layer_input)
+        output = []
+        for c in range(layer_input.shape[1]):
+            curr_in = layer_input[:, c, :]
+            for i in range(self.n_layers):
+                ht_1 = layer_states[i]
+                zt = torch.sigmoid(self.layer_params[i]["xz"](curr_in) + self.layer_params[i]["hz"](ht_1))
+                rt = torch.sigmoid(self.layer_params[i]["xr"](curr_in) + self.layer_params[i]["hr"](ht_1))
+                gt = torch.tanh(self.layer_params[i]["xg"](curr_in) + self.layer_params[i]["hg"](rt*ht_1))
+                ht = zt*ht_1+(-zt+1)*gt
+                layer_states[i] = ht
+                if "dropout" in self.layer_params[i]:
+                    curr_in = self.layer_params[i]["dropout"](ht)
+                else:
+                    curr_in = ht
+            hidden_state = torch.stack(layer_states, dim=1)
+            output.append(self.layer_params[-1]["hy"](curr_in))
+        layer_output = torch.stack(output, dim=1)
         # ========================
         return layer_output, hidden_state
