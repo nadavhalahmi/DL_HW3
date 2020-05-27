@@ -141,7 +141,7 @@ def hot_softmax(y, dim=0, temperature=1.0):
     """
     # TODO: Implement based on the above.
     # ====== YOUR CODE: ======
-    raise NotImplementedError()
+    result = torch.softmax(y/temperature, dim)
     # ========================
     return result
 
@@ -177,7 +177,12 @@ def generate_from_model(model, start_sequence, n_chars, char_maps, T):
     #  necessary for this. Best to disable tracking for speed.
     #  See torch.no_grad().
     # ====== YOUR CODE: ======
-    raise NotImplementedError()
+    torch.no_grad()
+    state = None
+    for i in range(n_chars-len(start_sequence)):
+        out, state = model(chars_to_onehot(out_text[-len(start_sequence):], char_to_idx).view(1, len(start_sequence), -1).to(dtype=torch.float), state)
+        new_char = idx_to_char[torch.multinomial(hot_softmax(out, dim=2,temperature=T)[0], 1)[-1].item()]
+        out_text += new_char
     # ========================
 
     return out_text
