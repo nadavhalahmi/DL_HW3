@@ -180,7 +180,7 @@ def generate_from_model(model, start_sequence, n_chars, char_maps, T):
     torch.no_grad()
     state = None
     for i in range(n_chars-len(start_sequence)):
-        out, state = model(chars_to_onehot(out_text[-len(start_sequence):], char_to_idx).view(1, len(start_sequence), -1).to(dtype=torch.float), state)
+        out, state = model(chars_to_onehot(out_text[-len(start_sequence):], char_to_idx).view(1, len(start_sequence), -1).to(dtype=torch.float, device=device), state)
         new_char = idx_to_char[torch.multinomial(hot_softmax(out, dim=2,temperature=T)[0], 1)[-1].item()]
         out_text += new_char
     # ========================
