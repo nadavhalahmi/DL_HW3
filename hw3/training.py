@@ -59,6 +59,8 @@ class Trainer(abc.ABC):
         best_acc = None
         epochs_without_improvement = 0
 
+        min_loss = None #TODO: CHECK, ADDED BY US
+
         checkpoint_filename = None
         if checkpoints is not None:
             checkpoint_filename = f'{checkpoints}.pt'
@@ -86,7 +88,23 @@ class Trainer(abc.ABC):
             #  - Implement early stopping. This is a very useful and
             #    simple regularization technique that is highly recommended.
             # ====== YOUR CODE: ======
-            raise NotImplementedError()
+            train_result = self.train_epoch(dl_train, verbose=verbose, **kw)
+            train_loss.append(sum(train_result.losses) / len(train_result.losses))
+            train_acc.append(train_result.accuracy)
+            test_result = self.test_epoch(dl_test, verbose=verbose, **kw)
+            test_loss.append(sum(test_result.losses) / len(test_result.losses))
+            test_acc.append(test_result.accuracy)
+            if best_acc is None or test_result.accuracy > best_acc:
+                best_acc = test_result.accuracy
+            if early_stopping is not None:
+                new_loss = sum(test_result.losses) / len(test_result.losses)
+                if min_loss is None or new_loss < min_loss:
+                    min_loss = new_loss
+                    epochs_without_improvement = 0
+                else:
+                    epochs_without_improvement += 1
+                if epochs_without_improvement >= early_stopping:
+                    break
             # ========================
 
             # Save model checkpoint if requested
@@ -215,7 +233,8 @@ class RNNTrainer(Trainer):
     def test_epoch(self, dl_test: DataLoader, **kw):
         # TODO: Implement modifications to the base method, if needed.
         # ====== YOUR CODE: ======
-        raise NotImplementedError()
+        #raise NotImplementedError()
+        self.state = None #TODO: CHECK
         # ========================
         return super().test_epoch(dl_test, **kw)
 
@@ -234,10 +253,13 @@ class RNNTrainer(Trainer):
         #  - Calculate number of correct char predictions
         # ====== YOUR CODE: ======
         out, self.state = self.model(x, self.state)
+
+        self.optimizer.zero_grad()
         loss = self.loss_fn(out[0], y[0])
-        loss.backward()
+        loss.backward(retain_graph=True)
+
         self.optimizer.step()
-        #update params
+
         num_correct = sum(1*((torch.argmax(out[0], dim=1)-y[0]) == 0))
         #raise NotImplementedError()
         # ========================
@@ -259,7 +281,11 @@ class RNNTrainer(Trainer):
             #  - Loss calculation
             #  - Calculate number of correct predictions
             # ====== YOUR CODE: ======
-            raise NotImplementedError()
+            out, self.state = self.model(x, self.state)
+
+            loss = self.loss_fn(out[0], y[0])
+
+            num_correct = sum(1 * ((torch.argmax(out[0], dim=1) - y[0]) == 0))
             # ========================
 
         return BatchResult(loss.item(), num_correct.item() / seq_len)
