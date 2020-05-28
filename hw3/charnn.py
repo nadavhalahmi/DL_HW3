@@ -330,9 +330,9 @@ class MultilayerGRU(nn.Module):
         # ====== YOUR CODE: ======
         output = []
         for c in range(layer_input.shape[1]):
-            curr_in = layer_input[:, c, :]
+            curr_in = layer_input[:, c, :].to(device=input.device)
             for i in range(self.n_layers):
-                ht_1 = layer_states[i]
+                ht_1 = layer_states[i].to(device=input.device)
                 zt = torch.sigmoid(self.layer_params[i]["xz"](curr_in) + self.layer_params[i]["hz"](ht_1))
                 rt = torch.sigmoid(self.layer_params[i]["xr"](curr_in) + self.layer_params[i]["hr"](ht_1))
                 gt = torch.tanh(self.layer_params[i]["xg"](curr_in) + self.layer_params[i]["hg"](rt*ht_1))
