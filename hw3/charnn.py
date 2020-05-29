@@ -122,10 +122,10 @@ def chars_to_labelled_samples(text: str, char_to_idx: dict, seq_len: int,
     #  3. Create the labels tensor in a similar way and convert to indices.
     #  Note that no explicit loops are required to implement this function.
     # ====== YOUR CODE: ======
-    embedded_tensor = chars_to_onehot(text, char_to_idx)
-    embedded_samples = embedded_tensor[:-1, :]
-    samples = embedded_samples.unfold(0, seq_len, seq_len).transpose(1, 2)
-    labels = ((torch.nonzero(embedded_tensor)[:, 1])[1:]).unfold(0, seq_len, seq_len)
+    embedded_tensor = chars_to_onehot(text, char_to_idx).to(device=device)
+    embedded_samples = embedded_tensor[:-1, :].to(device=device)
+    samples = embedded_samples.unfold(0, seq_len, seq_len).transpose(1, 2).to(device=device)
+    labels = (((torch.nonzero(embedded_tensor)[:, 1])[1:]).unfold(0, seq_len, seq_len)).to(device=device)
     # ========================
     return samples, labels
 
