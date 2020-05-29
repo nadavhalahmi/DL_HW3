@@ -96,6 +96,7 @@ class Trainer(abc.ABC):
             test_acc.append(test_result.accuracy)
             if best_acc is None or test_result.accuracy > best_acc:
                 best_acc = test_result.accuracy
+                save_checkpoint = True
             if early_stopping is not None:
                 new_loss = sum(test_result.losses) / len(test_result.losses)
                 if min_loss is None or new_loss < min_loss:

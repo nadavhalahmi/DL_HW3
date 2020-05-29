@@ -31,7 +31,7 @@ def part1_generation_params():
     # TODO: Tweak the parameters to generate a literary masterpiece.
     # ====== YOUR CODE: ======
     #raise NotImplementedError()
-    start_seq = "Tal"
+    start_seq = "ACT I."
     # ========================
     return start_seq, temperature
 
