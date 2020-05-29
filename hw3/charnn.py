@@ -122,12 +122,20 @@ def chars_to_labelled_samples(text: str, char_to_idx: dict, seq_len: int,
     #  3. Create the labels tensor in a similar way and convert to indices.
     #  Note that no explicit loops are required to implement this function.
     # ====== YOUR CODE: ======
-    embedded_tensor = chars_to_onehot(text, char_to_idx).to(device=device)
-    embedded_samples = embedded_tensor[:-1, :].to(device=device)
-    samples = embedded_samples.unfold(0, seq_len, seq_len).transpose(1, 2)
-    labels = (((torch.nonzero(embedded_tensor)[:, 1])[1:]).unfold(0, seq_len, seq_len))
+    # embedded_tensor = chars_to_onehot(text, char_to_idx)
+    # embedded_samples = embedded_tensor[:-1, :]
+    # samples = embedded_samples.unfold(0, seq_len, seq_len).transpose(1, 2)
+    # labels = (((torch.nonzero(embedded_tensor)[:, 1])[1:]).unfold(0, seq_len, seq_len))
+    text_tensor = chars_to_onehot(text, char_to_idx)
+    samples = torch.split(text_tensor[:-1, :], seq_len)
+    labels = torch.split(torch.argmax(text_tensor[1:], dim=1), seq_len)
+    if len(labels[-1]) % seq_len != 0:
+        samples = samples[:-1]
+        labels = labels[:-1]
+    samples = torch.stack(samples)
+    labels = torch.stack(labels)
     # ========================
-    return samples, labels
+    return samples.to(device), labels.to(device)
 
 
 def hot_softmax(y, dim=0, temperature=1.0):

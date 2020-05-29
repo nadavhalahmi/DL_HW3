@@ -254,7 +254,7 @@ class RNNTrainer(Trainer):
         # ====== YOUR CODE: ======
         out, self.state = self.model(x, self.state)
 
-        self.optimizer.zero_grad()
+        #self.optimizer.zero_grad()
         loss = self.loss_fn(torch.transpose(out,1,2),y)
         loss.backward()
 
@@ -263,7 +263,7 @@ class RNNTrainer(Trainer):
         num_correct = torch.sum(y == torch.argmax(out, dim=2))
 
         #TODO: UNDERSTAND
-        self.state = self.state.detach()
+        self.state = self.state.detach_()
         self.state.requires_grad = False
         # ========================
 
