@@ -255,13 +255,16 @@ class RNNTrainer(Trainer):
         out, self.state = self.model(x, self.state)
 
         self.optimizer.zero_grad()
-        loss = self.loss_fn(out[0], y[0])
-        loss.backward(retain_graph=True)
+        loss = self.loss_fn(torch.transpose(out,1,2),y)
+        loss.backward()
 
         self.optimizer.step()
 
-        num_correct = sum(1*((torch.argmax(out[0], dim=1)-y[0]) == 0))
-        #raise NotImplementedError()
+        num_correct = torch.sum(y == torch.argmax(out, dim=2))
+
+        #TODO: UNDERSTAND
+        self.state = self.state.detach()
+        self.state.requires_grad = False
         # ========================
 
         # Note: scaling num_correct by seq_len because each sample has seq_len
@@ -283,9 +286,9 @@ class RNNTrainer(Trainer):
             # ====== YOUR CODE: ======
             out, self.state = self.model(x, self.state)
 
-            loss = self.loss_fn(out[0], y[0])
+            loss = self.loss_fn(torch.transpose(out,1,2),y)
 
-            num_correct = sum(1 * ((torch.argmax(out[0], dim=1) - y[0]) == 0))
+            num_correct = torch.sum(y == torch.argmax(out, dim=2))
             # ========================
 
         return BatchResult(loss.item(), num_correct.item() / seq_len)
