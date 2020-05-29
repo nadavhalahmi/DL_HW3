@@ -264,7 +264,7 @@ class RNNTrainer(Trainer):
         num_correct = torch.sum(y == torch.argmax(out, dim=2))
 
         #TODO: UNDERSTAND
-        self.state = self.state.detach_()
+        self.state = self.state.detach()
         self.state.requires_grad = False
         # ========================
 

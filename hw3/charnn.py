@@ -132,10 +132,10 @@ def chars_to_labelled_samples(text: str, char_to_idx: dict, seq_len: int,
     if len(labels[-1]) % seq_len != 0:
         samples = samples[:-1]
         labels = labels[:-1]
-    samples = torch.stack(samples)
-    labels = torch.stack(labels)
+    samples = torch.stack(samples).to(device)
+    labels = torch.stack(labels).to(device)
     # ========================
-    return samples.to(device), labels.to(device)
+    return samples, labels
 
 
 def hot_softmax(y, dim=0, temperature=1.0):
@@ -185,10 +185,11 @@ def generate_from_model(model, start_sequence, n_chars, char_maps, T):
     #  necessary for this. Best to disable tracking for speed.
     #  See torch.no_grad().
     # ====== YOUR CODE: ======
+    new_char = start_sequence
     with torch.no_grad():
         state = None
         for i in range(n_chars-len(start_sequence)):
-            out, state = model(chars_to_onehot(out_text[-len(start_sequence):], char_to_idx).view(1, len(start_sequence), -1).to(dtype=torch.float, device=device), state)
+            out, state = model(chars_to_onehot(new_char, char_to_idx).view(1, len(new_char), -1).to(dtype=torch.float, device=device), state)
             new_char = idx_to_char[torch.multinomial(hot_softmax(out, dim=2,temperature=T)[0], 1)[-1].item()]
             out_text += new_char
     # ========================
