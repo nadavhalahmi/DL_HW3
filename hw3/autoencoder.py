@@ -19,7 +19,16 @@ class EncoderCNN(nn.Module):
         #  use pooling or only strides, use any activation functions,
         #  use BN or Dropout, etc.
         # ====== YOUR CODE: ======
-        raise NotImplementedError()
+        modules.append(nn.Conv2d(in_channels, 32, kernel_size=3, padding=1))
+        modules.append(nn.Dropout(p=0.3))
+        modules.append(nn.BatchNorm2d(32))
+        modules.append(nn.Conv2d(32, 64, kernel_size=3, padding=1))
+        modules.append(nn.Dropout(p=0.3))
+        modules.append(nn.BatchNorm2d(64))
+        modules.append(nn.Conv2d(64, 128, kernel_size=3, padding=1))
+        modules.append(nn.Dropout(p=0.3))
+        modules.append(nn.BatchNorm2d(128))
+        modules.append(nn.Conv2d(128, out_channels, kernel_size=3, padding=1))
         # ========================
         self.cnn = nn.Sequential(*modules)
 
@@ -42,7 +51,16 @@ class DecoderCNN(nn.Module):
         #  output should be a batch of images, with same dimensions as the
         #  inputs to the Encoder were.
         # ====== YOUR CODE: ======
-        raise NotImplementedError()
+        modules.append(nn.ConvTranspose2d(in_channels, 128, kernel_size=3, padding=1))
+        modules.append(nn.BatchNorm2d(128))
+        modules.append(nn.Dropout(p=0.3))
+        modules.append(nn.ConvTranspose2d(128, 64, kernel_size=3, padding=1))
+        modules.append(nn.BatchNorm2d(64))
+        modules.append(nn.Dropout(p=0.3))
+        modules.append(nn.ConvTranspose2d(64, 32, kernel_size=3, padding=1))
+        modules.append(nn.BatchNorm2d(32))
+        modules.append(nn.Dropout(p=0.3))
+        modules.append(nn.ConvTranspose2d(32, out_channels, kernel_size=3, padding=1))
         # ========================
         self.cnn = nn.Sequential(*modules)
 
