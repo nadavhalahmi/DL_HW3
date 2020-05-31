@@ -88,7 +88,9 @@ class VAE(nn.Module):
 
         # TODO: Add more layers as needed for encode() and decode().
         # ====== YOUR CODE: ======
-        raise NotImplementedError()
+        self.create_mu = nn.Linear(n_features, z_dim)
+        self.create_log_sigma2 = nn.Linear(n_features, z_dim)
+        self.reconstruct = nn.Linear(z_dim, n_features)
         # ========================
 
     def _check_features(self, in_size):
@@ -109,7 +111,12 @@ class VAE(nn.Module):
         #     log_sigma2 (mean and log variance) of q(Z|x).
         #  2. Apply the reparametrization trick to obtain z.
         # ====== YOUR CODE: ======
-        raise NotImplementedError()
+        features = self.features_encoder(x)
+        mu = self.create_mu(features.view(1,-1))
+        log_sigma2 = self.create_log_sigma2(features.view(1,-1))
+        u = torch.normal(mean=0.0, std=1.0, size=[self.z_dim])
+
+        z = mu + (torch.exp(log_sigma2)**0.5) * u
         # ========================
 
         return z, mu, log_sigma2
@@ -120,7 +127,8 @@ class VAE(nn.Module):
         #  1. Convert latent z to features h with a linear layer.
         #  2. Apply features decoder.
         # ====== YOUR CODE: ======
-        raise NotImplementedError()
+        h_tilda = self.reconstruct(z)
+        x_rec = self.features_decoder(h_tilda.view(1, *self.features_shape))
         # ========================
 
         # Scale to [-1, 1] (same dynamic range as original images).
