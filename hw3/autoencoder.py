@@ -102,7 +102,7 @@ class VAE(nn.Module):
             xr = self.features_decoder(h)
             assert xr.shape == x.shape
             # Return the shape and number of encoded features
-            return h.shape[1:], torch.numel(h)//h.shape[0]
+            return h.shape[1:], torch.numel(h) // h.shape[0]
 
     def encode(self, x):
         # TODO:
@@ -112,11 +112,11 @@ class VAE(nn.Module):
         #  2. Apply the reparametrization trick to obtain z.
         # ====== YOUR CODE: ======
         features = self.features_encoder(x)
-        mu = self.create_mu(features.view(1,-1))
-        log_sigma2 = self.create_log_sigma2(features.view(1,-1))
+        mu = self.create_mu(features.view(1, -1))
+        log_sigma2 = self.create_log_sigma2(features.view(1, -1))
         u = torch.normal(mean=0.0, std=1.0, size=[self.z_dim])
 
-        z = mu + (torch.exp(log_sigma2)**0.5) * u
+        z = mu + (torch.exp(log_sigma2) ** 0.5) * u
         # ========================
 
         return z, mu, log_sigma2
@@ -147,7 +147,8 @@ class VAE(nn.Module):
             #    Instead of sampling from N(psi(z), sigma2 I), we'll just take
             #    the mean, i.e. psi(z).
             # ====== YOUR CODE: ======
-            raise NotImplementedError()
+            for i in range(n):
+                samples.append(self.decode(torch.normal(mean=0.0, std=1.0, size=[self.z_dim])).squeeze())
             # ========================
 
         # Detach and move to CPU for display purposes
@@ -180,7 +181,10 @@ def vae_loss(x, xr, z_mu, z_log_sigma2, x_sigma2):
     #  1. The covariance matrix of the posterior is diagonal.
     #  2. You need to average over the batch dimension.
     # ====== YOUR CODE: ======
-    raise NotImplementedError()
+    num_batches = x.size(0)
+    data_loss = nn.functional.mse_loss(xr, x)
+    kldiv_loss = torch.sum(z_log_sigma2 - z_mu.pow(2) - z_log_sigma2.exp()+1) / num_batches
+    loss = (1.0 / x_sigma2) * data_loss - kldiv_loss
     # ========================
 
     return loss, data_loss, kldiv_loss
