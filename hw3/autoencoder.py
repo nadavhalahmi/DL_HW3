@@ -111,10 +111,11 @@ class VAE(nn.Module):
         #     log_sigma2 (mean and log variance) of q(Z|x).
         #  2. Apply the reparametrization trick to obtain z.
         # ====== YOUR CODE: ======
+        device = next(self.parameters()).device
         features = self.features_encoder(x)
-        mu = self.create_mu(features.view(1, -1))
-        log_sigma2 = self.create_log_sigma2(features.view(1, -1))
-        u = torch.normal(mean=0.0, std=1.0, size=[self.z_dim])
+        mu = self.create_mu(features.view(x.shape[0], -1))
+        log_sigma2 = self.create_log_sigma2(features.view(x.shape[0], -1)).to(device = device)
+        u = torch.normal(mean=0.0, std=1.0, size=[self.z_dim], device=device)
 
         z = mu + (torch.exp(log_sigma2) ** 0.5) * u
         # ========================
@@ -127,8 +128,10 @@ class VAE(nn.Module):
         #  1. Convert latent z to features h with a linear layer.
         #  2. Apply features decoder.
         # ====== YOUR CODE: ======
+        device = next(self.parameters()).device
+        z.to(device)
         h_tilda = self.reconstruct(z)
-        x_rec = self.features_decoder(h_tilda.view(1, *self.features_shape))
+        x_rec = self.features_decoder(h_tilda.view(z.shape[0], *self.features_shape))
         # ========================
 
         # Scale to [-1, 1] (same dynamic range as original images).
@@ -148,7 +151,7 @@ class VAE(nn.Module):
             #    the mean, i.e. psi(z).
             # ====== YOUR CODE: ======
             for i in range(n):
-                samples.append(self.decode(torch.normal(mean=0.0, std=1.0, size=[self.z_dim])).squeeze())
+                samples.append(self.decode(torch.normal(mean=0.0, std=1.0, size=[self.z_dim], device = device)).squeeze())
             # ========================
 
         # Detach and move to CPU for display purposes

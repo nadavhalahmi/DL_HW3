@@ -1,6 +1,0 @@
-*** SLURM BATCH JOB 'test_job' STARTING ***
-*** Activating environment cs236781-hw ***
-[NbConvertApp] Converting notebook Part1_Sequence.ipynb to notebook
-[NbConvertApp] Executing notebook with kernel: python3
-slurmstepd-rishon2: error: *** JOB 64976 ON rishon2 CANCELLED AT 2020-05-29T17:40:59 ***
-[IPKernelApp] WARNING | Parent appears to have exited, shutting down.
