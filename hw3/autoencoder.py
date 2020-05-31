@@ -131,7 +131,7 @@ class VAE(nn.Module):
         device = next(self.parameters()).device
         z.to(device)
         h_tilda = self.reconstruct(z)
-        x_rec = self.features_decoder(h_tilda.view(z.shape[0], *self.features_shape))
+        x_rec = self.features_decoder(h_tilda.view(-1, *self.features_shape))
         # ========================
 
         # Scale to [-1, 1] (same dynamic range as original images).
