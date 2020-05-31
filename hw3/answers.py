@@ -41,12 +41,8 @@ part1_q1 = r"""
 **Your answer:**
 
 
-Write your answer using **markdown** and $\LaTeX$:
-```python
-# A code block
-a = 2
-```
-An equation: $e^{i\pi} -1 = 0$
+The RNN is not capable of learning on large sequences as it will suffer from vanishing/exploding gradients.
+Moreover, propagating the gradients will take a lot of time.
 
 """
 
