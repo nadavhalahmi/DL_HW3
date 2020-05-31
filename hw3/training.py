@@ -304,7 +304,7 @@ class VAETrainer(Trainer):
         out = self.model(x)
 
         self.optimizer.zero_grad()
-        loss, data_loss, kldiv_loss = self.loss_fn(out,y)
+        loss, data_loss, kldiv_loss = self.loss_fn(x, out, )
         loss.backward()
 
         self.optimizer.step()
@@ -321,9 +321,9 @@ class VAETrainer(Trainer):
         with torch.no_grad():
             # TODO: Evaluate a VAE on one batch.
             # ====== YOUR CODE: ======
-            out = self.model(x)
+            out, mu, log_sigma2 = self.model(x)
 
-            loss, data_loss, kldiv_loss = self.loss_fn(out,y)
+            loss, data_loss, kldiv_loss = self.loss_fn(out, x, mu, log_sigma2, )
 
             # ========================
 
