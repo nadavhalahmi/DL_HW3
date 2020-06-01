@@ -30,7 +30,6 @@ def part1_generation_params():
     temperature = .0001
     # TODO: Tweak the parameters to generate a literary masterpiece.
     # ====== YOUR CODE: ======
-    #raise NotImplementedError()
     start_seq = "ACT I."
     temperature = 0.25
     # ========================
@@ -72,9 +71,10 @@ to the others. Since we have more classes than usual, we would like to increase 
 uniform distribution.
 2. When the temperature is very high, we won't be able to distinguish between possible target chars. They will get
 very close scores, and the distribution will be close to uniform. It will increase the chance of getting more diverse
-characters, but can lead to errors.
-3. When the temperature is very low, we will end up with one character which is very likely to be chosen. In the extreme
-case, we can end up with a sequence full of this char only. 
+characters, but can lead to errors. In the extreme case, we will end up with complete gibberish, made of many characters,
+each in almost the same frequency. 
+3. When the temperature is very low, we will end up with one character (or "structure")which is very likely to be chosen.
+In the extreme case, we can end up with a sequence full of this char (or "structure") only. 
 
 """
 # ==============
