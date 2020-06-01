@@ -49,13 +49,10 @@ Moreover, propagating the gradients will take a lot of time.
 part1_q2 = r"""
 **Your answer:**
 
-
-Write your answer using **markdown** and $\LaTeX$:
-```python
-# A code block
-a = 2
-```
-An equation: $e^{i\pi} -1 = 0$
+It shows memory longer than the sequence length thanks to the history of the states that the model remembers.
+It is therefore, remembers results came from longer sequence, as the model learns from every input it gets. 
+Given a sequence in a specific time $t$, the model's hidden layers will be updated with respect to this sequence and it 
+will matter for the next sequences which will come in $time > t$.
 
 """
 
