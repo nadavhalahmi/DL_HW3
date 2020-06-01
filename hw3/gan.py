@@ -21,7 +21,19 @@ class Discriminator(nn.Module):
         #  You can then use either an affine layer or another conv layer to
         #  flatten the features.
         # ====== YOUR CODE: ======
-        raise NotImplementedError()
+        modules = []
+        modules.append(nn.Conv2d(in_size[0], 32, kernel_size=3, padding=1))
+        modules.append(nn.Dropout(p=0.3))
+        modules.append(nn.BatchNorm2d(32))
+        modules.append(nn.Conv2d(32, 64, kernel_size=3, padding=1))
+        modules.append(nn.Dropout(p=0.3))
+        modules.append(nn.BatchNorm2d(64))
+        modules.append(nn.Conv2d(64, 128, kernel_size=3, padding=1))
+        modules.append(nn.Dropout(p=0.3))
+        modules.append(nn.BatchNorm2d(128))
+        modules.append(nn.Conv2d(128, 1, kernel_size=3, padding=1))
+        modules.append(nn.MaxPool2d(64))
+        self.cnn = nn.Sequential(*modules)
         # ========================
 
     def forward(self, x):
@@ -34,7 +46,7 @@ class Discriminator(nn.Module):
         #  No need to apply sigmoid to obtain probability - we'll combine it
         #  with the loss due to improved numerical stability.
         # ====== YOUR CODE: ======
-        raise NotImplementedError()
+        y = self.cnn(x).view(1,1)
         # ========================
         return y
 
