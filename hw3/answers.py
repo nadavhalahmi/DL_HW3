@@ -40,7 +40,6 @@ def part1_generation_params():
 part1_q1 = r"""
 **Your answer:**
 
-
 The RNN is not capable of learning on large sequences as it will suffer from vanishing/exploding gradients.
 Moreover, propagating the gradients will take a lot of time.
 
@@ -59,26 +58,23 @@ will matter for the next sequences which will come in $time > t$.
 part1_q3 = r"""
 **Your answer:**
 
-
-Write your answer using **markdown** and $\LaTeX$:
-```python
-# A code block
-a = 2
-```
-An equation: $e^{i\pi} -1 = 0$
+We are not shuffling the order of batches when training because in comparison to other trainable models,
+we need to keep the order of the batches, because the input is sequential, and each batch depends on the ones before it.
+In other models, there's no meaning to the order of the batches, and therefore, these can be shuffled.
 
 """
 
 part1_q4 = r"""
 **Your answer:**
 
-
-Write your answer using **markdown** and $\LaTeX$:
-```python
-# A code block
-a = 2
-```
-An equation: $e^{i\pi} -1 = 0$
+1. We lower the temperature in order to increase the chance of sampling the char(s) with the highest scores compared 
+to the others. Since we have more classes than usual, we would like to increase the variance, and end up with less
+uniform distribution.
+2. When the temperature is very high, we won't be able to distinguish between possible target chars. They will get
+very close scores, and the distribution will be close to uniform. It will increase the chance of getting more diverse
+characters, but can lead to errors.
+3. When the temperature is very low, we will end up with one character which is very likely to be chosen. In the extreme
+case, we can end up with a sequence full of this char only. 
 
 """
 # ==============
