@@ -47,10 +47,11 @@ Moreover, propagating the gradients will take a lot of time.
 part1_q2 = r"""
 **Your answer:**
 
-It shows memory longer than the sequence length thanks to the history of the states that the model remembers.
+It shows memory longer than the sequence length thanks to the model's state that represents the history the
+model encountered. 
 It is therefore, remembers results came from longer sequence, as the model learns from every input it gets. 
-Given a sequence in a specific time $t$, the model's hidden layers will be updated with respect to this sequence and it 
-will matter for the next sequences which will come in $time > t$.
+Given a sequence in a specific time, the model's hidden layers will be updated with respect to this sequence and it 
+will affect the latter sequences processing.
 
 """
 
@@ -97,7 +98,8 @@ def part2_vae_hyperparams():
     hypers['batch_size'] = 8
     hypers['h_dim'] = 25
     hypers['z_dim'] = 10
-    hypers['x_sigma2'] = 0.9
+    hypers['x_sigma2'] = 100
+    #hypers['x_sigma2'] = 0.9
     hypers['learn_rate'] = 2e-4
     hypers['betas'] = (1-1e-1, 1-1e-3)
     # ========================
@@ -107,13 +109,9 @@ def part2_vae_hyperparams():
 part2_q1 = r"""
 **Your answer:**
 
-
-Write your answer using **markdown** and $\LaTeX$:
-```python
-# A code block
-a = 2
-```
-An equation: $e^{i\pi} -1 = 0$
+$\sigma^2$ controls how diverse our output will be. Therefore, when $\sigma^2$ is high, we will get diverse images,
+different from the original images, but also "worse".
+When $\sigma^2$ is low, we will get images similar to the original images, and similar to each other.
 
 """
 
