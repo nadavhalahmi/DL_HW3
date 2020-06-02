@@ -136,7 +136,10 @@ def discriminator_loss_fn(y_data, y_generated, data_label=0, label_noise=0.0):
     #  Implement the discriminator loss.
     #  See pytorch's BCEWithLogitsLoss for a numerically stable implementation.
     # ====== YOUR CODE: ======
-    raise NotImplementedError()
+    labels = torch.empty(len(y_data)).uniform_(data_label-label_noise/2, data_label+label_noise/2)
+    losser = nn.BCEWithLogitsLoss(reduction='mean')
+    loss_data = losser(y_data, labels)
+    loss_generated = losser(y_generated, labels)
     # ========================
     return loss_data + loss_generated
 
