@@ -131,6 +131,7 @@ def discriminator_loss_fn(y_data, y_generated, data_label=0, label_noise=0.0):
     uniformly sampled from the range [-0.1,+0.1].
     :return: The combined loss of both.
     """
+    
     assert data_label == 1 or data_label == 0
     # TODO:
     #  Implement the discriminator loss.
@@ -138,7 +139,7 @@ def discriminator_loss_fn(y_data, y_generated, data_label=0, label_noise=0.0):
     # ====== YOUR CODE: ======
     labels = torch.empty(len(y_data)).uniform_(data_label-label_noise/2, data_label+label_noise/2)
     losser = nn.BCEWithLogitsLoss(reduction='mean')
-    loss_data = losser(y_data, labels)
+    loss_data = losser(y_data, -labels+1)
     loss_generated = losser(y_generated, labels)
     # ========================
     return loss_data + loss_generated
