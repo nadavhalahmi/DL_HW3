@@ -117,7 +117,9 @@ data term. Therefore, $\sigma^2$ actually controls the importance of the regular
 part2_q2 = r"""
 **Your answer:**
 
-1. - The reconstruction lost is actually a data fitting term of the VAE loss and it tells how well the model generated points fit to the data.
+1. 
+
+- The reconstruction lost is actually a data fitting term of the VAE loss and it tells how well the model generated points fit to the data.
 - The KL diversion loss is actually a regularization term of the VAE loss and it tells came from mesuring the diversion between the model posterior and the actual posterior, meaning it tells how much data is lost after the reconstruction process.
 2. 
 

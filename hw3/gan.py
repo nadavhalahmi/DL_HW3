@@ -46,7 +46,7 @@ class Discriminator(nn.Module):
         #  No need to apply sigmoid to obtain probability - we'll combine it
         #  with the loss due to improved numerical stability.
         # ====== YOUR CODE: ======
-        y = self.cnn(x).view(1,1)
+        y = self.cnn(x).view(1, 1)
         # ========================
         return y
 
@@ -67,7 +67,18 @@ class Generator(nn.Module):
         #  section or implement something new.
         #  You can assume a fixed image size.
         # ====== YOUR CODE: ======
-        raise NotImplementedError()
+        modules = []
+        modules.append(nn.ConvTranspose2d(z_dim, 64, kernel_size=featuremap_size,
+                                          stride=featuremap_size, padding=0))
+        modules.append(nn.BatchNorm2d(64))
+        modules.append(nn.Dropout(p=0.6))
+        modules.append(nn.ConvTranspose2d(64, 32, kernel_size=featuremap_size,
+                                          stride=featuremap_size, padding=0))
+        modules.append(nn.BatchNorm2d(32))
+        modules.append(nn.Dropout(p=0.6))
+        modules.append(nn.ConvTranspose2d(32, out_channels, kernel_size=featuremap_size,
+                                          stride=featuremap_size, padding=0))
+        self.cnn = nn.Sequential(*modules)
         # ========================
 
     def sample(self, n, with_grad=False):
@@ -98,7 +109,9 @@ class Generator(nn.Module):
         #  Don't forget to make sure the output instances have the same
         #  dynamic range as the original (real) images.
         # ====== YOUR CODE: ======
-        raise NotImplementedError()
+        z = torch.unsqueeze(z, dim=2)
+        z = torch.unsqueeze(z, dim=3)
+        x = self.cnn(z)
         # ========================
         return x
 
