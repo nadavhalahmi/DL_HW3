@@ -20,15 +20,13 @@ class EncoderCNN(nn.Module):
         #  use BN or Dropout, etc.
         # ====== YOUR CODE: ======
         modules.append(nn.Conv2d(in_channels, 32, kernel_size=3, padding=1))
-        modules.append(nn.Dropout(p=0.3))
+        modules.append(nn.Dropout(p=0.6))
         modules.append(nn.BatchNorm2d(32))
         modules.append(nn.Conv2d(32, 64, kernel_size=3, padding=1))
-        modules.append(nn.Dropout(p=0.3))
+        modules.append(nn.Dropout(p=0.6))
         modules.append(nn.BatchNorm2d(64))
-        modules.append(nn.Conv2d(64, 128, kernel_size=3, padding=1))
-        modules.append(nn.Dropout(p=0.3))
-        modules.append(nn.BatchNorm2d(128))
-        modules.append(nn.Conv2d(128, out_channels, kernel_size=3, padding=1))
+        modules.append(nn.Conv2d(64, out_channels, kernel_size=3, padding=1))
+        modules.append(nn.MaxPool2d(1))
         # ========================
         self.cnn = nn.Sequential(*modules)
 
@@ -51,15 +49,13 @@ class DecoderCNN(nn.Module):
         #  output should be a batch of images, with same dimensions as the
         #  inputs to the Encoder were.
         # ====== YOUR CODE: ======
-        modules.append(nn.ConvTranspose2d(in_channels, 128, kernel_size=3, padding=1))
-        modules.append(nn.BatchNorm2d(128))
-        modules.append(nn.Dropout(p=0.3))
-        modules.append(nn.ConvTranspose2d(128, 64, kernel_size=3, padding=1))
+        modules.append(nn.MaxPool2d(1))
+        modules.append(nn.ConvTranspose2d(in_channels, 64, kernel_size=3, padding=1))
         modules.append(nn.BatchNorm2d(64))
-        modules.append(nn.Dropout(p=0.3))
+        modules.append(nn.Dropout(p=0.6))
         modules.append(nn.ConvTranspose2d(64, 32, kernel_size=3, padding=1))
         modules.append(nn.BatchNorm2d(32))
-        modules.append(nn.Dropout(p=0.3))
+        modules.append(nn.Dropout(p=0.6))
         modules.append(nn.ConvTranspose2d(32, out_channels, kernel_size=3, padding=1))
         # ========================
         self.cnn = nn.Sequential(*modules)
@@ -117,7 +113,7 @@ class VAE(nn.Module):
         log_sigma2 = self.create_log_sigma2(features.view(x.shape[0], -1)).to(device = device)
         u = torch.normal(mean=0.0, std=1.0, size=[self.z_dim], device=device)
 
-        z = mu + (torch.exp(log_sigma2) ** 0.5) * u
+        z = mu + (torch.exp(log_sigma2 / 2)) * u
         # ========================
 
         return z, mu, log_sigma2

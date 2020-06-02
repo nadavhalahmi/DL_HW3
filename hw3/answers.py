@@ -96,11 +96,11 @@ def part2_vae_hyperparams():
     # TODO: Tweak the hyperparameters to generate a former president.
     # ====== YOUR CODE: ======
     hypers['batch_size'] = 8
-    hypers['h_dim'] = 25
-    hypers['z_dim'] = 10
-    hypers['x_sigma2'] = 100
+    hypers['h_dim'] = 10
+    hypers['z_dim'] = 15
+    hypers['x_sigma2'] = 0.0004
     #hypers['x_sigma2'] = 0.9
-    hypers['learn_rate'] = 2e-4
+    hypers['learn_rate'] = 4e-4
     hypers['betas'] = (1-1e-1, 1-1e-3)
     # ========================
     return hypers
@@ -109,22 +109,17 @@ def part2_vae_hyperparams():
 part2_q1 = r"""
 **Your answer:**
 
-$\sigma^2$ controls how diverse our output will be. Therefore, when $\sigma^2$ is high, we will get diverse images,
-different from the original images, but also "worse".
-When $\sigma^2$ is low, we will get images similar to the original images, and similar to each other.
+$\sigma^2$ has a role of a regularization strength as we have in the loss function 2 terms: the regularization term and the 
+data term. Therefore, $\sigma^2$ actually controls the importance of the regularization term: the bigger the sigma, the stronger regularization term). $\sigma^2$ also controls the amount of uncertainty that we had in the generation of an instance. Therefore, the bigger $\sigma^2$- the less we should trust our data. 
 
 """
 
 part2_q2 = r"""
 **Your answer:**
 
-
-Write your answer using **markdown** and $\LaTeX$:
-```python
-# A code block
-a = 2
-```
-An equation: $e^{i\pi} -1 = 0$
+1. - The reconstruction lost is actually a data fitting term of the VAE loss and it tells how well the model generated points fit to the data.
+- The KL diversion loss is actually a regularization term of the VAE loss and it tells came from mesuring the diversion between the model posterior and the actual posterior, meaning it tells how much data is lost after the reconstruction process.
+2. 
 
 """
 
