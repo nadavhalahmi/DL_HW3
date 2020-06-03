@@ -140,8 +140,8 @@ def discriminator_loss_fn(y_data, y_generated, data_label=0, label_noise=0.0):
     #  Implement the discriminator loss.
     #  See pytorch's BCEWithLogitsLoss for a numerically stable implementation.
     # ====== YOUR CODE: ======
-    labels = torch.empty(len(y_data)).uniform_(data_label - label_noise / 2, data_label + label_noise / 2)
-    generated_labels = torch.empty(len(y_data)).uniform_(1 - data_label - label_noise / 2,
+    labels = torch.empty(len(y_data), device=y_data.device).uniform_(data_label - label_noise / 2, data_label + label_noise / 2)
+    generated_labels = torch.empty(len(y_data), device=y_data.device).uniform_(1 - data_label - label_noise / 2,
                                                          1 - data_label + label_noise / 2)
     losser = nn.BCEWithLogitsLoss(reduction='mean')
     loss_data = losser(y_data, labels)
@@ -167,7 +167,7 @@ def generator_loss_fn(y_generated, data_label=0):
     #  formulate the loss in terms of Binary Cross Entropy.
     # ====== YOUR CODE: ======
     losser = nn.BCEWithLogitsLoss(reduction='mean')
-    loss = losser(y_generated, torch.tensor([data_label] * len(y_generated), dtype=torch.double))
+    loss = losser(y_generated, torch.tensor([data_label] * len(y_generated), dtype=torch.double, device=y_generated.device))
     # ========================
     return loss
 
@@ -186,17 +186,16 @@ def train_batch(dsc_model: Discriminator, gen_model: Generator,
     #  1. Show the discriminator real and generated data
     #  2. Calculate discriminator loss
     #  3. Update discriminator parameters
-    # ====== YOUR CODE: ======
+    # ====== YOUR CODE: ======    
     x_scores = dsc_model(x_data).view(-1)
-    samples = gen_model.sample(len(x_data))
+    samples = gen_model.sample(len(x_data), with_grad=True)
     samples_scores = dsc_model(samples).view(-1)
     dsc_optimizer.zero_grad()
 
-    print("x_data in shape ", x_scores.shape, " x_generated in shape ", samples_scores.shape)
     dsc_loss = dsc_loss_fn(x_scores, samples_scores)
-    #dsc_loss.backward()
+    dsc_loss.backward(retain_graph=True)
 
-    #dsc_optimizer.step()
+    dsc_optimizer.step()
     # ========================
 
     # TODO: Generator update
@@ -209,11 +208,10 @@ def train_batch(dsc_model: Discriminator, gen_model: Generator,
     #samples_scores = gen_model(samples).view(-1)
     gen_optimizer.zero_grad()
 
-    print("x_data in shape ", x_scores.shape, " x_generated in shape ", samples_scores.shape)
     gen_loss = gen_loss_fn(samples_scores)
-    #gen_loss.backward()
+    gen_loss.backward()
 
-    #gen_optimizer.step()
+    gen_optimizer.step()
     # ========================
 
     return dsc_loss.item(), gen_loss.item()
