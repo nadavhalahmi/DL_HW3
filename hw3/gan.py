@@ -22,17 +22,18 @@ class Discriminator(nn.Module):
         #  flatten the features.
         # ====== YOUR CODE: ======
         modules = []
-        modules.append(nn.Conv2d(in_size[0], 32, kernel_size=3, padding=1))
-        modules.append(nn.Dropout(p=0.3))
+        modules.append(nn.Conv2d(in_size[0], 32, stride=2, kernel_size=3, padding=1))
         modules.append(nn.BatchNorm2d(32))
-        modules.append(nn.Conv2d(32, 64, kernel_size=3, padding=1))
-        modules.append(nn.Dropout(p=0.3))
+        modules.append(nn.LeakyReLU())
+        modules.append(nn.Conv2d(32, 64, stride=2, kernel_size=3, padding=1))
         modules.append(nn.BatchNorm2d(64))
-        modules.append(nn.Conv2d(64, 128, kernel_size=3, padding=1))
-        modules.append(nn.Dropout(p=0.3))
+        modules.append(nn.LeakyReLU())
+        modules.append(nn.Conv2d(64, 128, stride=2, kernel_size=3, padding=1))
         modules.append(nn.BatchNorm2d(128))
-        modules.append(nn.Conv2d(128, 1, kernel_size=3, padding=1))
-        modules.append(nn.AvgPool2d(64))
+        modules.append(nn.LeakyReLU())
+        modules.append(nn.Conv2d(128, 1, stride=2, kernel_size=3, padding=1))
+        modules.append(nn.AvgPool2d(4))
+        modules.append(nn.LeakyReLU())
         self.cnn = nn.Sequential(*modules)
         # ========================
 
@@ -68,16 +69,18 @@ class Generator(nn.Module):
         #  You can assume a fixed image size.
         # ====== YOUR CODE: ======
         modules = []
+        #modules.append(nn.PixelShuffle(upscale_factor=2))
         modules.append(nn.ConvTranspose2d(z_dim, 64, kernel_size=featuremap_size,
                                           stride=featuremap_size, padding=0))
         modules.append(nn.BatchNorm2d(64))
-        modules.append(nn.Dropout(p=0.6))
+        modules.append(nn.ReLU())
         modules.append(nn.ConvTranspose2d(64, 32, kernel_size=featuremap_size,
                                           stride=featuremap_size, padding=0))
         modules.append(nn.BatchNorm2d(32))
-        modules.append(nn.Dropout(p=0.6))
+        modules.append(nn.ReLU())
         modules.append(nn.ConvTranspose2d(32, out_channels, kernel_size=featuremap_size,
                                           stride=featuremap_size, padding=0))
+        modules.append(nn.BatchNorm2d(out_channels))
         modules.append(nn.Tanh())
         self.cnn = nn.Sequential(*modules)
         self.dsc_best_loss = None
