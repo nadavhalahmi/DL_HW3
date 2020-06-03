@@ -31,8 +31,11 @@ class Discriminator(nn.Module):
         modules.append(nn.Conv2d(64, 128, stride=2, kernel_size=3, padding=1))
         modules.append(nn.BatchNorm2d(128))
         modules.append(nn.LeakyReLU())
-        modules.append(nn.Conv2d(128, 1, stride=2, kernel_size=3, padding=1))
-        modules.append(nn.AvgPool2d(4))
+        modules.append(nn.Conv2d(128, 3, stride=2, kernel_size=3, padding=1))
+        modules.append(nn.BatchNorm2d(3))
+        modules.append(nn.Conv2d(3, 1, stride=2, kernel_size=3, padding=1))
+        modules.append(nn.BatchNorm2d(1))
+        modules.append(nn.AvgPool2d(2))
         modules.append(nn.LeakyReLU())
         self.cnn = nn.Sequential(*modules)
         # ========================
@@ -194,11 +197,11 @@ def train_batch(dsc_model: Discriminator, gen_model: Generator,
     # ====== YOUR CODE: ======    
     x_scores = dsc_model(x_data).view(-1)
     samples = gen_model.sample(len(x_data), with_grad=True)
-    samples_scores = dsc_model(samples.detach()).view(-1)
+    samples_scores = dsc_model(samples).view(-1)
     dsc_optimizer.zero_grad()
 
     dsc_loss = dsc_loss_fn(x_scores, samples_scores)
-    dsc_loss.backward()
+    dsc_loss.backward(retain_graph=True)
 
     dsc_optimizer.step()
     # ========================
@@ -208,7 +211,6 @@ def train_batch(dsc_model: Discriminator, gen_model: Generator,
     #  2. Calculate generator loss
     #  3. Update generator parameters
     # ====== YOUR CODE: ======
-    samples_scores = dsc_model(samples).view(-1)
     gen_optimizer.zero_grad()
     gen_loss = gen_loss_fn(samples_scores)
     gen_loss.backward()
