@@ -46,7 +46,7 @@ class Discriminator(nn.Module):
         #  No need to apply sigmoid to obtain probability - we'll combine it
         #  with the loss due to improved numerical stability.
         # ====== YOUR CODE: ======
-        y = self.cnn(x).view(1, 1)
+        y = self.cnn(x).view(x.shape[0], 1)
         # ========================
         return y
 
@@ -187,13 +187,16 @@ def train_batch(dsc_model: Discriminator, gen_model: Generator,
     #  2. Calculate discriminator loss
     #  3. Update discriminator parameters
     # ====== YOUR CODE: ======
-    x_generated = dsc_model(x_data)
+    x_scores = dsc_model(x_data).view(-1)
+    samples = gen_model.sample(len(x_data))
+    samples_scores = dsc_model(samples).view(-1)
     dsc_optimizer.zero_grad()
 
-    dsc_loss = dsc_loss_fn(x_data, x_generated)
-    dsc_loss.backward()
+    print("x_data in shape ", x_scores.shape, " x_generated in shape ", samples_scores.shape)
+    dsc_loss = dsc_loss_fn(x_scores, samples_scores)
+    #dsc_loss.backward()
 
-    dsc_optimizer.step()
+    #dsc_optimizer.step()
     # ========================
 
     # TODO: Generator update
@@ -201,13 +204,16 @@ def train_batch(dsc_model: Discriminator, gen_model: Generator,
     #  2. Calculate generator loss
     #  3. Update generator parameters
     # ====== YOUR CODE: ======
-    x_generated = gen_model(x_data)
-    dsc_optimizer.zero_grad()
+    #x_scores = gen_model(x_data).view(-1)
+    #samples = gen_model.sample(len(x_data))
+    #samples_scores = gen_model(samples).view(-1)
+    gen_optimizer.zero_grad()
 
-    gen_loss = dsc_loss_fn(x_generated)
-    gen_loss.backward()
+    print("x_data in shape ", x_scores.shape, " x_generated in shape ", samples_scores.shape)
+    gen_loss = gen_loss_fn(samples_scores)
+    #gen_loss.backward()
 
-    dsc_optimizer.step()
+    #gen_optimizer.step()
     # ========================
 
     return dsc_loss.item(), gen_loss.item()
@@ -230,7 +236,7 @@ def save_checkpoint(gen_model, dsc_losses, gen_losses, checkpoint_file):
     #  You should decide what logic to use for deciding when to save.
     #  If you save, set saved to True.
     # ====== YOUR CODE: ======
-    raise NotImplementedError()
+    #raise NotImplementedError()
     # ========================
 
     return saved
