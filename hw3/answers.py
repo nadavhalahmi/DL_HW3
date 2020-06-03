@@ -5,6 +5,7 @@ Note: Inside the answer strings you can use Markdown format and also LaTeX
 math (delimited with $$).
 """
 
+
 # ==============
 # Part 1 answers
 
@@ -99,9 +100,9 @@ def part2_vae_hyperparams():
     hypers['h_dim'] = 10
     hypers['z_dim'] = 15
     hypers['x_sigma2'] = 0.0004
-    #hypers['x_sigma2'] = 0.9
+    # hypers['x_sigma2'] = 0.9
     hypers['learn_rate'] = 4e-4
-    hypers['betas'] = (1-1e-1, 1-1e-3)
+    hypers['betas'] = (1 - 1e-1, 1 - 1e-3)
     # ========================
     return hypers
 
@@ -150,7 +151,13 @@ def part3_gan_hyperparams():
     )
     # TODO: Tweak the hyperparameters to train your GAN.
     # ====== YOUR CODE: ======
-    raise NotImplementedError()
+    hypers['batch_size'] = 64
+    hypers['z_dim'] = 128
+    hypers['data_label'] = 1
+    hypers['label_noise'] = 0.25
+    hypers['discriminator_optimizer'] = dict(type='Adam', weight_decay=0.015, betas=(1 - 1e-1, 1 - 1e-3), lr=2e-4)
+    hypers['generator_optimizer'] = dict(type='Adam', weight_decay=0.015, betas=(1 - 1e-1, 1 - 1e-3), lr=2e-4)
+
     # ========================
     return hypers
 
@@ -195,5 +202,3 @@ An equation: $e^{i\pi} -1 = 0$
 """
 
 # ==============
-
-
