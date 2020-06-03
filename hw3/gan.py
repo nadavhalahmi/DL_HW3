@@ -231,10 +231,15 @@ def save_checkpoint(gen_model, dsc_losses, gen_losses, checkpoint_file):
     #  You should decide what logic to use for deciding when to save.
     #  If you save, set saved to True.
     # ====== YOUR CODE: ======
+    
+    
     if gen_model.dsc_best_loss is None or (dsc_losses < gen_model.dsc_best_loss and gen_losses < gen_model.gen_best_loss):
         gen_model.dsc_best_loss = dsc_losses
         gen_model.gen_best_loss = gen_losses
-        torch.save(gen_model, checkpoint_file)
+        saved_state = dict(dsc_best_loss=dsc_losses,
+                                   gen_best_loss=gen_losses,
+                                   model_state=gen_model.state_dict())
+        torch.save(saved_state, checkpoint_file)
         saved = True
     # ========================
 
