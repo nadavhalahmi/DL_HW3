@@ -32,7 +32,7 @@ class Discriminator(nn.Module):
         modules.append(nn.Dropout(p=0.3))
         modules.append(nn.BatchNorm2d(128))
         modules.append(nn.Conv2d(128, 1, kernel_size=3, padding=1))
-        modules.append(nn.MaxPool2d(64))
+        modules.append(nn.AvgPool2d(64))
         self.cnn = nn.Sequential(*modules)
         # ========================
 
@@ -236,10 +236,7 @@ def save_checkpoint(gen_model, dsc_losses, gen_losses, checkpoint_file):
     if gen_model.dsc_best_loss is None or (dsc_losses < gen_model.dsc_best_loss and gen_losses < gen_model.gen_best_loss):
         gen_model.dsc_best_loss = dsc_losses
         gen_model.gen_best_loss = gen_losses
-        saved_state = dict(dsc_best_loss=dsc_losses,
-                                   gen_best_loss=gen_losses,
-                                   model_state=gen_model.state_dict())
-        torch.save(saved_state, checkpoint_file)
+        torch.save(gen_model, checkpoint_file)
         saved = True
     # ========================
 
