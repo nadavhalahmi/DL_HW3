@@ -80,6 +80,8 @@ class Generator(nn.Module):
                                           stride=featuremap_size, padding=0))
         modules.append(nn.Tanh())
         self.cnn = nn.Sequential(*modules)
+        self.dsc_best_loss = None
+        self.gen_best_loss = None
         # ========================
 
     def sample(self, n, with_grad=False):
@@ -203,14 +205,9 @@ def train_batch(dsc_model: Discriminator, gen_model: Generator,
     #  2. Calculate generator loss
     #  3. Update generator parameters
     # ====== YOUR CODE: ======
-    #x_scores = gen_model(x_data).view(-1)
-    #samples = gen_model.sample(len(x_data))
-    #samples_scores = gen_model(samples).view(-1)
     gen_optimizer.zero_grad()
-
     gen_loss = gen_loss_fn(samples_scores)
     gen_loss.backward()
-
     gen_optimizer.step()
     # ========================
 
@@ -234,7 +231,11 @@ def save_checkpoint(gen_model, dsc_losses, gen_losses, checkpoint_file):
     #  You should decide what logic to use for deciding when to save.
     #  If you save, set saved to True.
     # ====== YOUR CODE: ======
-    #raise NotImplementedError()
+    if gen_model.dsc_best_loss is None or (dsc_losses < gen_model.dsc_best_loss and gen_losses < gen_model.gen_best_loss):
+        gen_model.dsc_best_loss = dsc_losses
+        gen_model.gen_best_loss = gen_losses
+        torch.save(gen_model, checkpoint_file)
+        saved = True
     # ========================
 
     return saved
