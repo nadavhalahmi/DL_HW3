@@ -110,8 +110,8 @@ def part2_vae_hyperparams():
 part2_q1 = r"""
 **Your answer:**
 
-$\sigma^2$ has a role of a regularization strength as we have in the loss function 2 terms: the regularization term and the 
-data term. Therefore, $\sigma^2$ actually controls the importance of the regularization term: the bigger the sigma, the stronger regularization term). $\sigma^2$ also controls the amount of uncertainty that we had in the generation of an instance. Therefore, the bigger $\sigma^2$- the less we should trust our data. 
+$\sigma^2$ has a role of a regularization strength as there are 2 terms in the loss function: the regularization term and the 
+data term. Therefore, $\sigma^2$ actually controls the importance of the regularization term: the bigger the sigma, the stronger regularization term). $\sigma^2$ also controls the amount of uncertainty that we had in the generation of an instance. Therefore, the bigger $\sigma^2$- getting more generalization but very similar pictures. The smaller $\sigma^2$- we are getting more differences in the generated pictures, but all of them do not look like containing the face of Bush which appears in every pictures in the dataset.
 
 """
 
@@ -120,9 +120,9 @@ part2_q2 = r"""
 
 1. 
 
-- The reconstruction lost is actually a data fitting term of the VAE loss and it tells how well the model generated 
+- The reconstruction loss is actually a data fitting term of the VAE loss and it tells how well the model generated 
 points fit to the data.
-- The KL diversion loss is actually a regularization term of the VAE loss and it tells came from mesuring the diversion
+- The KL diversion loss is actually a regularization term of the VAE loss and it came from mesuring the diversion
 between the model posterior and the actual posterior, meaning it tells how much data is lost after the reconstruction process.
 2. Without the KLV loss there will be difference between the distribiution we will get to the real distribution. 
 Therefore it is there to keep overlapping. It is actually measures the similarities between 2 probabilties, in order to 
