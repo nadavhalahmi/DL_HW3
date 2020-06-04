@@ -21,26 +21,28 @@ class Discriminator(nn.Module):
         #  You can then use either an affine layer or another conv layer to
         #  flatten the features.
         # ====== YOUR CODE: ======
-        cnn_modules = []
-        cnn_modules.append(nn.Conv2d(in_size[0], 32, stride=2, kernel_size=3, padding=1))
-        cnn_modules.append(nn.BatchNorm2d(32))
-        cnn_modules.append(nn.LeakyReLU())
-        cnn_modules.append(nn.Conv2d(32, 64, stride=2, kernel_size=3, padding=1))
-        cnn_modules.append(nn.BatchNorm2d(64))
-        cnn_modules.append(nn.LeakyReLU())
-        cnn_modules.append(nn.Conv2d(64, 128, stride=2, kernel_size=3, padding=1))
-        cnn_modules.append(nn.BatchNorm2d(128))
-        cnn_modules.append(nn.LeakyReLU())
-        #cnn_modules.append(nn.Conv2d(128, 1, stride=2, kernel_size=3, padding=1))
-        #cnn_modules.append(nn.AvgPool2d(4))
-        #cnn_modules.append(nn.LeakyReLU())
-        self.cnn = nn.Sequential(*cnn_modules)
-        linear_modules = []
+        self.conv_kernel_sz = 5
+        new_in_channels = [self.in_size[0],32,64, 128, 256]
+        new_out_channels = [32,64, 128, 256]
+        num_strides = 0
+        self.feature_extractor = []
+        for in_chn, out_chn in zip(new_in_channels, new_out_channels):
+            conv = nn.Conv2d(in_chn, out_chn, self.conv_kernel_sz, padding=2, stride=2)
+            norm = nn.BatchNorm2d(out_chn)
+            act_func = nn.LeakyReLU()
+            num_strides += 1
+            self.feature_extractor.extend([conv,norm,act_func])
+        self.feature_extractor = nn.Sequential(*self.feature_extractor)
+        classifier = []
         h, w = self.in_size[1:]
-        linear_modules.append(nn.Linear(in_features=2*h*w, out_features=h*w))
-        linear_modules.append(nn.LeakyReLU())
-        linear_modules.append(nn.Linear(in_features=h*w, out_features=1))
-        self.linear = nn.Sequential(*linear_modules)
+        net_in_size = (256*h*w)//((2**num_strides)**2)
+        net_out_size = (0.25*h*w)//((2**num_strides)**2)
+        linear_first = nn.Linear(int(net_in_size),int(net_out_size))
+        linear_second = nn.Linear(int(net_out_size),1)
+        act_func = nn.LeakyReLU()
+        dropout = nn.Dropout(0.2)
+        classifier.extend([linear_first,act_func,dropout, linear_second])
+        self.classifier_extractor = nn.Sequential(*classifier)
 
         # ========================
 
@@ -54,8 +56,10 @@ class Discriminator(nn.Module):
         #  No need to apply sigmoid to obtain probability - we'll combine it
         #  with the loss due to improved numerical stability.
         # ====== YOUR CODE: ======
-        y = self.cnn(x).view(x.shape[0], -1)
-        y = self.linear(y).view(x.shape[0], 1)
+        extracted = self.feature_extractor(x)
+        sz = extracted.size(0)
+        extracted = extracted.view(sz, -1)
+        y = self.classifier_extractor(extracted)
         # ========================
         return y
 
@@ -76,22 +80,28 @@ class Generator(nn.Module):
         #  section or implement something new.
         #  You can assume a fixed image size.
         # ====== YOUR CODE: ======
-        modules = []
-        #modules.append(nn.PixelShuffle(upscale_factor=2))
-        modules.append(nn.ConvTranspose2d(z_dim, 64, kernel_size=featuremap_size,
-                                          stride=featuremap_size, padding=0))
-        modules.append(nn.BatchNorm2d(64))
-        modules.append(nn.ReLU())
-        modules.append(nn.ConvTranspose2d(64, 32, kernel_size=featuremap_size,
-                                          stride=featuremap_size, padding=0))
-        modules.append(nn.BatchNorm2d(32))
-        modules.append(nn.ReLU())
-        modules.append(nn.ConvTranspose2d(32, out_channels, kernel_size=featuremap_size,
-                                          stride=featuremap_size, padding=0))
-        modules.append(nn.BatchNorm2d(out_channels))
-        modules.append(nn.Tanh())
-        self.cnn = nn.Sequential(*modules)
-        self.dsc_best_loss = None
+        new_in_channels = [self.z_dim,256,128,64,32]
+        new_out_channels = [256,128,64,32,out_channels]
+        self.conv_kerenl_sz = featuremap_size
+        mods = []
+        flag = False
+        for in_chn, out_chn in zip(new_in_channels, new_out_channels):
+            if (out_chn!=out_channels):
+                padding = 1 if flag else  0
+                flag = True
+                conv = nn.ConvTranspose2d(in_chn, out_chn, kernel_size=self.conv_kerenl_sz, stride=2, padding=padding)
+                norm = nn.BatchNorm2d(out_chn)
+                act_func = nn.ReLU()
+                mods.extend([conv, norm,act_func])
+            else:
+                padding = 1 if flag else 0
+                flag = True
+                conv = nn.ConvTranspose2d(in_chn, out_chn, kernel_size=self.conv_kerenl_sz, stride=2, padding=padding)
+                act_func = nn.Tanh()
+                mods.extend([conv,act_func])
+            flag = True
+
+        self.generator = nn.Sequential(*mods)
         self.gen_best_loss = None
         # ========================
 
@@ -127,7 +137,7 @@ class Generator(nn.Module):
         # ====== YOUR CODE: ======
         z = torch.unsqueeze(z, dim=2)
         z = torch.unsqueeze(z, dim=3)
-        x = self.cnn(z)
+        x = self.generator(z)
         # ========================
         return x
 
@@ -244,10 +254,11 @@ def save_checkpoint(gen_model, dsc_losses, gen_losses, checkpoint_file):
     #  If you save, set saved to True.
     # ====== YOUR CODE: ======
     
-    
-    if gen_model.dsc_best_loss is None or (dsc_losses < gen_model.dsc_best_loss and gen_losses < gen_model.gen_best_loss):
-        gen_model.dsc_best_loss = dsc_losses
-        gen_model.gen_best_loss = gen_losses
+    #print("gen_model.total_best_loss is", gen_model.total_best_loss)
+    #print("dsc_losses is", dsc_losses)
+    #print("gen_losses is", gen_losses)
+    if True or (gen_model.gen_best_loss is None) or (gen_losses[-1] < gen_model.gen_best_loss):
+        gen_model.gen_best_loss = gen_losses[-1]
         torch.save(gen_model, checkpoint_file)
         saved = True
     # ========================
