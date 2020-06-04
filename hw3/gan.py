@@ -21,20 +21,27 @@ class Discriminator(nn.Module):
         #  You can then use either an affine layer or another conv layer to
         #  flatten the features.
         # ====== YOUR CODE: ======
-        modules = []
-        modules.append(nn.Conv2d(in_size[0], 32, stride=2, kernel_size=3, padding=1))
-        modules.append(nn.BatchNorm2d(32))
-        modules.append(nn.LeakyReLU())
-        modules.append(nn.Conv2d(32, 64, stride=2, kernel_size=3, padding=1))
-        modules.append(nn.BatchNorm2d(64))
-        modules.append(nn.LeakyReLU())
-        modules.append(nn.Conv2d(64, 128, stride=2, kernel_size=3, padding=1))
-        modules.append(nn.BatchNorm2d(128))
-        modules.append(nn.LeakyReLU())
-        modules.append(nn.Conv2d(128, 1, stride=2, kernel_size=3, padding=1))
-        modules.append(nn.AvgPool2d(4))
-        modules.append(nn.LeakyReLU())
-        self.cnn = nn.Sequential(*modules)
+        cnn_modules = []
+        cnn_modules.append(nn.Conv2d(in_size[0], 32, stride=2, kernel_size=3, padding=1))
+        cnn_modules.append(nn.BatchNorm2d(32))
+        cnn_modules.append(nn.LeakyReLU())
+        cnn_modules.append(nn.Conv2d(32, 64, stride=2, kernel_size=3, padding=1))
+        cnn_modules.append(nn.BatchNorm2d(64))
+        cnn_modules.append(nn.LeakyReLU())
+        cnn_modules.append(nn.Conv2d(64, 128, stride=2, kernel_size=3, padding=1))
+        cnn_modules.append(nn.BatchNorm2d(128))
+        cnn_modules.append(nn.LeakyReLU())
+        #cnn_modules.append(nn.Conv2d(128, 1, stride=2, kernel_size=3, padding=1))
+        #cnn_modules.append(nn.AvgPool2d(4))
+        #cnn_modules.append(nn.LeakyReLU())
+        self.cnn = nn.Sequential(*cnn_modules)
+        linear_modules = []
+        h, w = self.in_size[1:]
+        linear_modules.append(nn.Linear(in_features=2*h*w, out_features=h*w))
+        linear_modules.append(nn.LeakyReLU())
+        linear_modules.append(nn.Linear(in_features=h*w, out_features=1))
+        self.linear = nn.Sequential(*linear_modules)
+
         # ========================
 
     def forward(self, x):
@@ -47,7 +54,8 @@ class Discriminator(nn.Module):
         #  No need to apply sigmoid to obtain probability - we'll combine it
         #  with the loss due to improved numerical stability.
         # ====== YOUR CODE: ======
-        y = self.cnn(x).view(x.shape[0], 1)
+        y = self.cnn(x).view(x.shape[0], -1)
+        y = self.linear(y).view(x.shape[0], 1)
         # ========================
         return y
 

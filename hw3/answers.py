@@ -120,9 +120,14 @@ part2_q2 = r"""
 
 1. 
 
-- The reconstruction lost is actually a data fitting term of the VAE loss and it tells how well the model generated points fit to the data.
-- The KL diversion loss is actually a regularization term of the VAE loss and it tells came from mesuring the diversion between the model posterior and the actual posterior, meaning it tells how much data is lost after the reconstruction process.
-2. 
+- The reconstruction lost is actually a data fitting term of the VAE loss and it tells how well the model generated 
+points fit to the data.
+- The KL diversion loss is actually a regularization term of the VAE loss and it tells came from mesuring the diversion
+between the model posterior and the actual posterior, meaning it tells how much data is lost after the reconstruction process.
+2. Without the KLV loss there will be difference between the distribiution we will get to the real distribution. 
+Therefore it is there to keep overlapping. It is actually measures the similarities between 2 probabilties, in order to 
+find the one that gives the distribution overlapping the real one.
+3. Discontiuity is removed in the latent space, and that helps to improve generation tasks. It also allows interpolations between classes.
 
 """
 
