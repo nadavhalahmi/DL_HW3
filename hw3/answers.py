@@ -170,39 +170,26 @@ def part3_gan_hyperparams():
 part3_q1 = r"""
 **Your answer:**
 
-
-Write your answer using **markdown** and $\LaTeX$:
-```python
-# A code block
-a = 2
-```
-An equation: $e^{i\pi} -1 = 0$
+We maintain the gradient when we train the generator and we ignore it when training the discriminator. We give the discriminator fake data without maintaining the gradient in order to avoid updating the generator's parameters so we can train the generator "seperately". 
 
 """
 
 part3_q2 = r"""
 **Your answer:**
 
+1. When training we saw the losses going up and down very frequently. It is caused due to the favt that the model is not trained enough: it may recieve very poor data but, getting a very loss value but we cannot rely on this results as the model is not trained. Therefore, implementing an early stopping solely based on the fact that the Generator loss is below some threshold is wrong.
 
-Write your answer using **markdown** and $\LaTeX$:
-```python
-# A code block
-a = 2
-```
-An equation: $e^{i\pi} -1 = 0$
+2. It means that the discriminator is learning well and classifies the data better, as for a more realistic generated data we are getting the same discriminator loss. As explained above, it takes time to train the discriminator and therefore it may be more inaccurate at the beginning. 
 
 """
 
 part3_q3 = r"""
 **Your answer:**
 
+The images in VAE show some average image, and the results do not differ greatly from each other. Every picture we got in the dataset, the face of president Bush is there. The model concentrate on the face, but concentrates less on the background. It happens because VAE compresses the sample and reconstructs it, and the most common thing the model sees is the face of Bush. 
 
-Write your answer using **markdown** and $\LaTeX$:
-```python
-# A code block
-a = 2
-```
-An equation: $e^{i\pi} -1 = 0$
+On the other hand, GAN generates more colourful pictures but blurred face. It happens because in GAN we generate samples and train the generator and discriminator on them, without paying attention to any specific similarity between the pictures. 
+
 
 """
 
