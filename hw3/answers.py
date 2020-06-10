@@ -110,8 +110,15 @@ def part2_vae_hyperparams():
 part2_q1 = r"""
 **Your answer:**
 
-$\sigma^2$ has a role of a regularization strength as there are 2 terms in the loss function: the regularization term and the 
-data term. Therefore, $\sigma^2$ actually controls the importance of the regularization term: the bigger the sigma, the stronger regularization term). $\sigma^2$ also controls the amount of uncertainty that we had in the generation of an instance. Therefore, the bigger $\sigma^2$- getting more generalization but very similar pictures. The smaller $\sigma^2$- we are getting more differences in the generated pictures, but all of them do not look like containing the face of Bush which appears in every pictures in the dataset.
+The VAE loss function consists of 2 parts: the reconstruction loss and KL 
+divergence loss. Therefore, $\sigma^2$ controls the 
+relation between the two: the bigger $\sigma^2$- 
+the less affecion of the reconstruction loss, leading to 
+similar pictures, each of them far from any original image. 
+The smaller $\sigma^2$- the less randomness is allowed in the 
+decoder mapping from Z to X, and, consequently, the regression 
+term dominates over the regularization term, and we get unsimilar
+images, each one closer to an original image.
 
 """
 
@@ -119,10 +126,10 @@ part2_q2 = r"""
 **Your answer:**
 
 1. 
-
-- The reconstruction loss is actually a data fitting term of the VAE loss and it tells how well the model generated 
-points fit to the data.
-- The KL diversion loss is actually a regularization term of the VAE loss and it came from mesuring the diversion
+    - The reconstruction loss is actually a data fitting term of the VAE loss and it tells how well the model generated 
+points fit to the original data, meaning, how close the encoder-decoder
+combination to the identity map. 
+    - The KL diversion loss is actually a regularization term of the VAE loss and it came from mesuring the diversion
 between the model posterior and the actual posterior, meaning it tells how much data is lost after the reconstruction process.
 2. Without the KLV loss there will be difference between the distribiution we will get to the real distribution. 
 Therefore it is there to keep overlapping. It is actually measures the similarities between 2 probabilties, in order to 
@@ -177,9 +184,24 @@ We maintain the gradient when we train the generator and we ignore it when train
 part3_q2 = r"""
 **Your answer:**
 
-1. When training we saw the losses going up and down very frequently. It is caused due to the favt that the model is not trained enough: it may recieve very poor data but, getting a very loss value but we cannot rely on this results as the model is not trained. Therefore, implementing an early stopping solely based on the fact that the Generator loss is below some threshold is wrong.
+1. When training we saw the losses going up and down very frequently.
+ It is caused due to the fact that the model is not trained enough: 
+ it may generate poor images but while getting good (low) loss value. 
+ We cannot rely on this results as the model is not trained. 
+ Therefore, implementing an early stopping solely based on the 
+ fact that the Generator loss is below some threshold is wrong.
+ The right way to handle early stopping is consider some batch of
+ last loss values, and take into consideration and descriminator loss too,
+ since bad discriminator might lead to bad generator with good loss,
+ cause it can pass the discriminator "test".
 
-2. It means that the discriminator is learning well and classifies the data better, as for a more realistic generated data we are getting the same discriminator loss. As explained above, it takes time to train the discriminator and therefore it may be more inaccurate at the beginning. 
+
+2. It means that the discriminator is learning well and classifies the
+ data better, as for a more realistic generated data we are getting 
+ the same discriminator loss. Moreover, the generator leans from the
+ good descriminator and therefore improves.
+ As explained above, it takes time to train the discriminator and therefore it may be less accurate at 
+ the beginning. 
 
 """
 
